@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "Flick",
+    "slug": "flick",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#101114"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Allow access to your photo library so you can swipe to keep or delete photos.",
+        "NSPhotoLibraryAddUsageDescription": "Allow access to delete photos you approve in the review screen."
+      }
+    },
+    "android": {
+      "permissions": ["READ_MEDIA_IMAGES", "READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"]
+    },
+    "plugins": ["expo-media-library"]
+  }
+}
