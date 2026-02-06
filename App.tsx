@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   Alert,
   Animated,
   Modal,
@@ -19,6 +18,7 @@ import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
 import AlbumPickerModal from './src/components/AlbumPickerModal';
 import HomeScreen from './src/screens/HomeScreen';
 import ReviewScreen from './src/screens/ReviewScreen';
+import SwipeScreen from './src/screens/SwipeScreen';
 import { Mode, ReviewItem } from './src/types';
 import { useFonts } from 'expo-font';
 
@@ -261,78 +261,23 @@ export default function App() {
     <SafeAreaView style={[styles.container, mode === 'browse' ? styles.containerLight : styles.containerDark]}>
       <ExpoStatusBar style={mode === 'browse' ? 'dark' : 'light'} />
       <StatusBar barStyle={mode === 'browse' ? 'dark-content' : 'light-content'} />
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => setAlbumModalVisible(true)}>
-          <Text style={styles.headerTitle}>{selectedAlbum.title}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={mode === 'browse' ? openReview : openBrowse}
-          style={mode === 'browse' ? styles.headerButton : styles.headerButtonAlt}
-        >
-          <Text style={styles.headerButtonText}>
-            {mode === 'browse' ? `Review (${reviewItems.length})` : 'Back to Swipe'}
-          </Text>
-        </TouchableOpacity>
-      </View>
 
       {mode === 'browse' ? (
-        <>
-          <View style={styles.deckContainer}>
-          <View style={styles.tapHint}>
-            <Text style={styles.tapHintText}>Tap to view the full pic</Text>
-            <Image source={require('./assets/blackarrow.png')} style={styles.tapHintArrow} resizeMode="contain" />
-          </View>
-          {nextAsset && (
-            <View style={styles.card}>
-              <Image source={{ uri: nextAsset.uri }} style={styles.image} resizeMode="cover" />
-            </View>
-          )}
-          {currentAsset ? (
-            <Animated.View
-              {...panResponder.panHandlers}
-              style={[
-                styles.card,
-                {
-                  transform: [...position.getTranslateTransform(), { rotate }],
-                },
-              ]}
-            >
-              <Pressable style={styles.previewPressable} onPress={() => openPreview(currentAsset.uri)}>
-                <Image source={{ uri: currentAsset.uri }} style={styles.image} resizeMode="cover" />
-              </Pressable>
-            </Animated.View>
-          ) : (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyTitle}>All done!</Text>
-              <Text style={styles.emptyBody}>You swiped through everything in this album.</Text>
-              {hasNextPage ? (
-                <TouchableOpacity style={styles.primaryButton} onPress={() => loadMoreAssets()}>
-                  <Text style={styles.primaryButtonText}>Load more</Text>
-                </TouchableOpacity>
-              ) : null}
-            </View>
-          )}
-          <View style={styles.swipeHintsRow}>
-            <View style={styles.swipeHintItem}>
-              <Image source={require('./assets/redarrow.png')} style={styles.swipeArrow} resizeMode="contain" />
-              <Text style={styles.swipeDeleteText}>Swipe to delete</Text>
-            </View>
-            <View style={styles.swipeHintItem}>
-              <Image source={require('./assets/greenarrow.png')} style={styles.swipeArrow} resizeMode="contain" />
-              <Text style={styles.swipeKeepText}>Swipe to keep</Text>
-            </View>
-          </View>
-          {loadingAssets && (
-            <View style={styles.loadingOverlay}>
-              <ActivityIndicator color="#111" />
-            </View>
-          )}
-          </View>
-          <View style={styles.swipeFooter}>
-          <Image source={require('./assets/flicklogo.png')} style={styles.swipeFooterLogo} resizeMode="contain" />
-          <Text style={styles.swipeFooterText}>Flick</Text>
-          </View>
-        </>
+        <SwipeScreen
+          selectedAlbum={selectedAlbum}
+          reviewCount={reviewItems.length}
+          mode={mode}
+          onOpenAlbumPicker={() => setAlbumModalVisible(true)}
+          onToggleMode={mode === 'browse' ? openReview : openBrowse}
+          currentAsset={currentAsset}
+          nextAsset={nextAsset}
+          panHandlers={panResponder.panHandlers}
+          cardTransform={[...position.getTranslateTransform(), { rotate }]}
+          onPreview={openPreview}
+          loadingAssets={loadingAssets}
+          hasNextPage={hasNextPage}
+          onLoadMore={loadMoreAssets}
+        />
       ) : (
         <ReviewScreen
           items={reviewItems}
@@ -390,71 +335,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: 16,
   },
-  header: {
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  headerTitle: {
-    color: '#111',
-    fontSize: 18,
-    fontFamily: 'Chopsticks',
-  },
-  headerButton: {
-    backgroundColor: '#2e2f33',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 12,
-  },
-  headerButtonAlt: {
-    backgroundColor: '#2e2f33',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 12,
-  },
-  headerButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontFamily: 'Chopsticks',
-  },
-  deckContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingBottom: 12,
-  },
-  tapHint: {
-    position: 'absolute',
-    top: 0,
-    alignItems: 'center',
-  },
-  tapHintText: {
-    fontFamily: 'Chopsticks',
-    fontSize: 14,
-    color: '#111',
-    marginBottom: 6,
-  },
-  tapHintArrow: {
-    width: 44,
-    height: 44,
-  },
-  card: {
-    position: 'absolute',
-    width: '88%',
-    height: '62%',
-    borderRadius: 26,
-    overflow: 'hidden',
-    backgroundColor: '#c9c9c9',
-    borderWidth: 2,
-    borderColor: '#2e2f33',
-  },
-  image: {
-    width: '100%',
-    height: '100%',
-  },
   emptyState: {
     alignItems: 'center',
     paddingHorizontal: 24,
@@ -501,47 +381,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Chopsticks',
   },
-  swipeHintsRow: {
-    position: 'absolute',
-    bottom: 6,
-    left: 20,
-    right: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  swipeHintItem: {
-    alignItems: 'center',
-  },
-  swipeArrow: {
-    width: 70,
-    height: 24,
-    marginBottom: 4,
-  },
-  swipeDeleteText: {
-    fontFamily: 'Chopsticks',
-    fontSize: 12,
-    color: '#cc3b3b',
-  },
-  swipeKeepText: {
-    fontFamily: 'Chopsticks',
-    fontSize: 12,
-    color: '#2c9b4b',
-  },
-  swipeFooter: {
-    alignItems: 'center',
-    paddingBottom: 18,
-  },
-  swipeFooterLogo: {
-    width: 30,
-    height: 30,
-  },
-  swipeFooterText: {
-    fontFamily: 'Chopsticks',
-    fontSize: 18,
-    color: '#111',
-    marginTop: 4,
-  },
   loadingOverlay: {
     position: 'absolute',
     bottom: 20,
@@ -556,8 +395,5 @@ const styles = StyleSheet.create({
   previewImage: {
     width: '100%',
     height: '100%',
-  },
-  previewPressable: {
-    flex: 1,
   },
 });
