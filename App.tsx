@@ -280,15 +280,16 @@ export default function App() {
     return (
       <SafeAreaView style={styles.homeContainer}>
         <ExpoStatusBar style="dark" />
-        <View style={styles.homeHeader}>
-          <Image source={require('./assets/flicklogo.png')} style={styles.homeLogo} resizeMode="contain" />
-          <Text style={styles.homeBrand}>Flick</Text>
+        <View style={styles.homeContent}>
+          <View style={styles.homeHeader}>
+            <Image source={require('./assets/flicklogo.png')} style={styles.homeLogo} resizeMode="contain" />
+          </View>
+          <Text style={styles.homeTitle}>Pick an album to start</Text>
+          <TouchableOpacity style={styles.homeButton} onPress={() => setAlbumModalVisible(true)}>
+            <Text style={styles.homeButtonText}>Choose Album</Text>
+          </TouchableOpacity>
+          <Image source={require('./assets/home-image.png')} style={styles.homeHero} resizeMode="contain" />
         </View>
-        <Text style={styles.homeTitle}>Pick an album to start</Text>
-        <TouchableOpacity style={styles.homeButton} onPress={() => setAlbumModalVisible(true)}>
-          <Text style={styles.homeButtonText}>Choose Album</Text>
-        </TouchableOpacity>
-        <Image source={require('./assets/home-image.png')} style={styles.homeHero} resizeMode="contain" />
         <Text style={styles.homeFooter}>CREATED BY GAUTHAM</Text>
         {renderAlbumPicker()}
       </SafeAreaView>
@@ -541,19 +542,27 @@ const styles = StyleSheet.create({
   homeContainer: {
     flex: 1,
     backgroundColor: '#f7f5f0',
+    paddingHorizontal: 24,
+    alignItems: 'center',
+  },
+  homeContent: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 24,
+    width: '100%',
+    paddingTop: 80,
+    paddingBottom: 80,
   },
   homeHeader: {
-    flexDirection: 'row',
+    position: 'absolute',
+    top: 8,
+    left: 0,
+    right: 0,
     alignItems: 'center',
-    marginBottom: 16,
   },
   homeLogo: {
-    width: 40,
-    height: 40,
-    marginRight: 10,
+    width: 82,
+    height: 82,
   },
   homeBrand: {
     fontFamily: 'Chopsticks',
@@ -562,32 +571,34 @@ const styles = StyleSheet.create({
   },
   homeTitle: {
     fontFamily: 'Chopsticks',
-    fontSize: 20,
+    fontSize: 30,
     color: '#111',
-    marginBottom: 18,
+    marginBottom: 22,
   },
   homeButton: {
     backgroundColor: '#2e2f33',
-    paddingHorizontal: 22,
-    paddingVertical: 12,
-    borderRadius: 12,
-    marginBottom: 28,
+    paddingHorizontal: 34,
+    paddingVertical: 16,
+    borderRadius: 16,
+    marginBottom: 30,
   },
   homeButtonText: {
     color: '#fff',
     fontFamily: 'Chopsticks',
-    fontSize: 16,
+    fontSize: 24,
   },
   homeHero: {
-    width: '80%',
-    height: 260,
-    marginBottom: 24,
+    width: '82%',
+    height: 220,
+    marginTop: 16,
   },
   homeFooter: {
     fontFamily: 'Chopsticks',
     fontSize: 12,
     color: '#111',
     letterSpacing: 1.2,
+    textAlign: 'center',
+    paddingBottom: 18,
   },
   loadingOverlay: {
     position: 'absolute',
