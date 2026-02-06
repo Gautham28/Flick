@@ -60,15 +60,17 @@ const styles = StyleSheet.create({
   },
   homeButton: {
     backgroundColor: '#2e2f33',
-    paddingHorizontal: 34,
-    paddingVertical: 16,
+    paddingHorizontal: 28,
+    height: 48,
     borderRadius: 16,
     marginBottom: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   homeButtonText: {
     color: '#fff',
     fontFamily: 'Chopsticks',
-    fontSize: 24,
+    fontSize: 22,
   },
   homeHero: {
     width: '82%',

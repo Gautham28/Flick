@@ -258,9 +258,9 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView style={[styles.container, mode === 'browse' ? styles.containerLight : styles.containerDark]}>
-      <ExpoStatusBar style={mode === 'browse' ? 'dark' : 'light'} />
-      <StatusBar barStyle={mode === 'browse' ? 'dark-content' : 'light-content'} />
+    <SafeAreaView style={[styles.container, styles.containerLight]}>
+      <ExpoStatusBar style="dark" />
+      <StatusBar barStyle="dark-content" />
 
       {mode === 'browse' ? (
         <SwipeScreen
@@ -280,6 +280,7 @@ export default function App() {
         />
       ) : (
         <ReviewScreen
+          albumTitle={selectedAlbum.title}
           items={reviewItems}
           selection={reviewSelection}
           onToggleSelection={toggleSelection}
@@ -288,6 +289,7 @@ export default function App() {
           onRestoreSelected={restoreSelected}
           onDeleteSelected={deleteSelected}
           onPreview={openPreview}
+          onBack={openBrowse}
         />
       )}
 

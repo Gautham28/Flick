@@ -116,9 +116,11 @@ const styles = StyleSheet.create({
   },
   headerButton: {
     backgroundColor: '#2e2f33',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 12,
+    paddingHorizontal: 18,
+    height: 40,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   headerButtonText: {
     color: '#fff',
@@ -133,7 +135,7 @@ const styles = StyleSheet.create({
   },
   tapHint: {
     position: 'absolute',
-    top: 90,
+    top: 75,
     alignItems: 'center',
   },
   tapHintText: {
@@ -165,7 +167,7 @@ const styles = StyleSheet.create({
   },
   swipeHintsRow: {
     position: 'absolute',
-    bottom: 110,
+    bottom: 80,
     left: 20,
     right: 20,
     flexDirection: 'row',
@@ -176,18 +178,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   swipeArrow: {
-    width: 70,
-    height: 24,
-    marginBottom: 4,
+    width: 90,
+    height: 30,
+    marginBottom: 6,
   },
   swipeDeleteText: {
     fontFamily: 'Chopsticks',
-    fontSize: 12,
+    fontSize: 14,
     color: '#cc3b3b',
   },
   swipeKeepText: {
     fontFamily: 'Chopsticks',
-    fontSize: 12,
+    fontSize: 14,
     color: '#2c9b4b',
   },
   swipeFooter: {
@@ -195,8 +197,8 @@ const styles = StyleSheet.create({
     paddingBottom: 18,
   },
   swipeFooterLogo: {
-    width: 30,
-    height: 30,
+    width: 82,
+    height: 82,
   },
   emptyState: {
     alignItems: 'center',

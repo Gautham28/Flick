@@ -2,6 +2,7 @@ import { FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View, Image } 
 import { ReviewItem } from '../types';
 
 export type ReviewScreenProps = {
+  albumTitle: string;
   items: ReviewItem[];
   selection: Set<string>;
   onToggleSelection: (id: string) => void;
@@ -10,9 +11,11 @@ export type ReviewScreenProps = {
   onRestoreSelected: () => void;
   onDeleteSelected: () => void;
   onPreview: (uri: string) => void;
+  onBack: () => void;
 };
 
 export default function ReviewScreen({
+  albumTitle,
   items,
   selection,
   onToggleSelection,
@@ -21,9 +24,17 @@ export default function ReviewScreen({
   onRestoreSelected,
   onDeleteSelected,
   onPreview,
+  onBack,
 }: ReviewScreenProps) {
   return (
     <View style={styles.reviewContainer}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>{albumTitle}</Text>
+        <TouchableOpacity style={styles.headerButton} onPress={onBack}>
+          <Text style={styles.headerButtonText}>Back to Swiping</Text>
+        </TouchableOpacity>
+      </View>
+
       <View style={styles.reviewToolbar}>
         <TouchableOpacity style={styles.toolbarButton} onPress={onSelectAll}>
           <Text style={styles.toolbarText}>Select All</Text>
@@ -34,10 +45,11 @@ export default function ReviewScreen({
         <TouchableOpacity style={styles.toolbarButton} onPress={onRestoreSelected}>
           <Text style={styles.toolbarText}>Restore</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.toolbarButton, styles.deleteButton]} onPress={onDeleteSelected}>
-          <Text style={[styles.toolbarText, styles.deleteText]}>Delete</Text>
+        <TouchableOpacity style={styles.deleteButton} onPress={onDeleteSelected}>
+          <Text style={styles.deleteText}>Delete</Text>
         </TouchableOpacity>
       </View>
+
       {items.length === 0 ? (
         <View style={styles.emptyState}>
           <Text style={styles.emptyTitle}>No photos queued</Text>
@@ -48,6 +60,7 @@ export default function ReviewScreen({
           data={items}
           keyExtractor={(item) => item.id}
           numColumns={3}
+          contentContainerStyle={styles.grid}
           renderItem={({ item }) => {
             const selected = selection.has(item.id);
             return (
@@ -64,6 +77,10 @@ export default function ReviewScreen({
           }}
         />
       )}
+
+      <View style={styles.footer}>
+        <Image source={require('../../assets/flicklogo.png')} style={styles.footerLogo} resizeMode="contain" />
+      </View>
     </View>
   );
 }
@@ -71,62 +88,116 @@ export default function ReviewScreen({
 const styles = StyleSheet.create({
   reviewContainer: {
     flex: 1,
-    paddingHorizontal: 12,
+    backgroundColor: '#f7f5f0',
+    paddingHorizontal: 16,
+  },
+  header: {
+    paddingTop: 8,
+    paddingBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headerTitle: {
+    color: '#111',
+    fontSize: 18,
+    fontFamily: 'Chopsticks',
+  },
+  headerButton: {
+    backgroundColor: '#2e2f33',
+    paddingHorizontal: 18,
+    height: 40,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontFamily: 'Chopsticks',
   },
   reviewToolbar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
   toolbarButton: {
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: '#20222a',
+    paddingHorizontal: 14,
+    height: 40,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#2e2f33',
+    backgroundColor: '#f7f5f0',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   toolbarText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
+    color: '#2e2f33',
+    fontSize: 14,
+    fontFamily: 'Chopsticks',
   },
   deleteButton: {
-    backgroundColor: '#3a1c1c',
+    paddingHorizontal: 16,
+    height: 40,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#ff3b30',
+    backgroundColor: '#ffecec',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   deleteText: {
-    color: '#ff8a8a',
+    color: '#ff3b30',
+    fontSize: 14,
+    fontFamily: 'Chopsticks',
+  },
+  grid: {
+    paddingTop: 6,
   },
   reviewItem: {
     width: '33.33%',
     aspectRatio: 1,
-    padding: 4,
+    padding: 6,
   },
   reviewImage: {
     width: '100%',
     height: '100%',
-    borderRadius: 8,
+    borderRadius: 12,
+    backgroundColor: '#c9c9c9',
+    borderWidth: 1.5,
+    borderColor: '#2e2f33',
   },
   reviewSelected: {
     position: 'absolute',
-    inset: 4,
-    borderRadius: 8,
-    borderWidth: 3,
-    borderColor: '#58a6ff',
-    backgroundColor: 'rgba(88,166,255,0.2)',
+    inset: 6,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: '#2e2f33',
+    backgroundColor: 'rgba(46,47,51,0.15)',
   },
   emptyState: {
     alignItems: 'center',
     paddingHorizontal: 24,
+    marginTop: 40,
   },
   emptyTitle: {
-    color: '#fff',
+    color: '#111',
     fontSize: 22,
-    fontWeight: '700',
+    fontFamily: 'Chopsticks',
     marginBottom: 8,
   },
   emptyBody: {
-    color: '#b0b4c1',
-    fontSize: 16,
+    color: '#4d4f57',
+    fontSize: 14,
     textAlign: 'center',
-    marginBottom: 16,
+    fontFamily: 'Chopsticks',
+  },
+  footer: {
+    alignItems: 'center',
+    paddingBottom: 18,
+  },
+  footerLogo: {
+    width: 82,
+    height: 82,
   },
 });
