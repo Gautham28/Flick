@@ -46,6 +46,7 @@ export default function App() {
   const [reviewItems, setReviewItems] = useState<ReviewItem[]>([]);
   const [reviewSelection, setReviewSelection] = useState<Set<string>>(new Set());
   const [albumModalVisible, setAlbumModalVisible] = useState(false);
+  const [previewUri, setPreviewUri] = useState<string | null>(null);
 
   const position = useRef(new Animated.ValueXY()).current;
 
@@ -169,6 +170,12 @@ export default function App() {
 
   const openReview = () => setMode('review');
   const openBrowse = () => setMode('browse');
+
+  const openPreview = (uri?: string) => {
+    if (uri) setPreviewUri(uri);
+  };
+
+  const closePreview = () => setPreviewUri(null);
 
   const toggleSelection = (id: string) => {
     setReviewSelection((prev) => {
@@ -306,7 +313,9 @@ export default function App() {
               <Animated.View style={[styles.badge, styles.deleteBadge, { opacity: deleteOpacity }]}> 
                 <Text style={styles.badgeText}>DELETE</Text>
               </Animated.View>
-              <Image source={{ uri: currentAsset.uri }} style={styles.image} resizeMode="cover" />
+              <Pressable style={styles.previewPressable} onPress={() => openPreview(currentAsset.uri)}>
+                <Image source={{ uri: currentAsset.uri }} style={styles.image} resizeMode="cover" />
+              </Pressable>
             </Animated.View>
           ) : (
             <View style={styles.emptyState}>
@@ -354,7 +363,12 @@ export default function App() {
               renderItem={({ item }) => {
                 const selected = reviewSelection.has(item.id);
                 return (
-                  <Pressable onPress={() => toggleSelection(item.id)} style={styles.reviewItem}>
+                  <Pressable
+                    onPress={() => openPreview(item.uri)}
+                    onLongPress={() => toggleSelection(item.id)}
+                    delayLongPress={200}
+                    style={styles.reviewItem}
+                  >
                     <Image source={{ uri: item.uri }} style={styles.reviewImage} />
                     {selected ? <View style={styles.reviewSelected} /> : null}
                   </Pressable>
@@ -364,6 +378,14 @@ export default function App() {
           )}
         </View>
       )}
+
+      <Modal visible={!!previewUri} transparent animationType="fade" onRequestClose={closePreview}>
+        <Pressable style={styles.previewBackdrop} onPress={closePreview}>
+          {previewUri ? (
+            <Image source={{ uri: previewUri }} style={styles.previewImage} resizeMode="contain" />
+          ) : null}
+        </Pressable>
+      </Modal>
 
       {renderAlbumPicker()}
     </SafeAreaView>
@@ -582,5 +604,19 @@ const styles = StyleSheet.create({
   modalCloseText: {
     color: '#58a6ff',
     fontWeight: '700',
+  },
+  previewBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.92)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 16,
+  },
+  previewImage: {
+    width: '100%',
+    height: '100%',
+  },
+  previewPressable: {
+    flex: 1,
   },
 });
