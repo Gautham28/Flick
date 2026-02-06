@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
+  BackHandler,
   Animated,
   Modal,
   PanResponder,
@@ -45,6 +46,21 @@ export default function App() {
     Chopsticks: require('./assets/fonts/Chopsticks.ttf'),
   });
   const [previewUri, setPreviewUri] = useState<string | null>(null);
+
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (mode === 'review') {
+        setMode('browse');
+        return true;
+      }
+      if (mode === 'browse' && selectedAlbum) {
+        setSelectedAlbum(null);
+        return true;
+      }
+      return false;
+    });
+    return () => subscription.remove();
+  }, [mode, selectedAlbum]);
 
   const position = useRef(new Animated.ValueXY()).current;
 
