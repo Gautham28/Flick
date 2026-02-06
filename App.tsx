@@ -17,6 +17,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as MediaLibrary from 'expo-media-library';
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
+import { useFonts } from 'expo-font';
 
 const SWIPE_THRESHOLD = 120;
 const SWIPE_OUT_DURATION = 200;
@@ -46,6 +47,10 @@ export default function App() {
   const [reviewItems, setReviewItems] = useState<ReviewItem[]>([]);
   const [reviewSelection, setReviewSelection] = useState<Set<string>>(new Set());
   const [albumModalVisible, setAlbumModalVisible] = useState(false);
+
+  const [fontsLoaded] = useFonts({
+    Chopsticks: require('./assets/fonts/Chopsticks.ttf'),
+  });
   const [previewUri, setPreviewUri] = useState<string | null>(null);
 
   const position = useRef(new Animated.ValueXY()).current;
@@ -247,6 +252,15 @@ export default function App() {
     </Modal>
   );
 
+  if (!fontsLoaded) {
+    return (
+      <SafeAreaView style={styles.centered}>
+        <ExpoStatusBar style="dark" />
+        <Text style={styles.loadingText}>Loading...</Text>
+      </SafeAreaView>
+    );
+  }
+
   if (permissionStatus !== 'granted') {
     return (
       <SafeAreaView style={styles.centered}>
@@ -264,12 +278,18 @@ export default function App() {
 
   if (!selectedAlbum) {
     return (
-      <SafeAreaView style={styles.centered}>
-        <ExpoStatusBar style="light" />
-        <Text style={styles.title}>Pick an album to start</Text>
-        <TouchableOpacity style={styles.primaryButton} onPress={() => setAlbumModalVisible(true)}>
-          <Text style={styles.primaryButtonText}>Choose Album</Text>
+      <SafeAreaView style={styles.homeContainer}>
+        <ExpoStatusBar style="dark" />
+        <View style={styles.homeHeader}>
+          <Image source={require('./assets/flicklogo.png')} style={styles.homeLogo} resizeMode="contain" />
+          <Text style={styles.homeBrand}>Flick</Text>
+        </View>
+        <Text style={styles.homeTitle}>Pick an album to start</Text>
+        <TouchableOpacity style={styles.homeButton} onPress={() => setAlbumModalVisible(true)}>
+          <Text style={styles.homeButtonText}>Choose Album</Text>
         </TouchableOpacity>
+        <Image source={require('./assets/home-image.png')} style={styles.homeHero} resizeMode="contain" />
+        <Text style={styles.homeFooter}>CREATED BY GAUTHAM</Text>
         {renderAlbumPicker()}
       </SafeAreaView>
     );
@@ -512,6 +532,62 @@ const styles = StyleSheet.create({
   permissionHint: {
     color: '#8a8f9c',
     marginTop: 12,
+  },
+  loadingText: {
+    color: '#111',
+    fontSize: 16,
+    fontFamily: 'Chopsticks',
+  },
+  homeContainer: {
+    flex: 1,
+    backgroundColor: '#f7f5f0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  homeHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  homeLogo: {
+    width: 40,
+    height: 40,
+    marginRight: 10,
+  },
+  homeBrand: {
+    fontFamily: 'Chopsticks',
+    fontSize: 28,
+    color: '#111',
+  },
+  homeTitle: {
+    fontFamily: 'Chopsticks',
+    fontSize: 20,
+    color: '#111',
+    marginBottom: 18,
+  },
+  homeButton: {
+    backgroundColor: '#2e2f33',
+    paddingHorizontal: 22,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginBottom: 28,
+  },
+  homeButtonText: {
+    color: '#fff',
+    fontFamily: 'Chopsticks',
+    fontSize: 16,
+  },
+  homeHero: {
+    width: '80%',
+    height: 260,
+    marginBottom: 24,
+  },
+  homeFooter: {
+    fontFamily: 'Chopsticks',
+    fontSize: 12,
+    color: '#111',
+    letterSpacing: 1.2,
   },
   loadingOverlay: {
     position: 'absolute',

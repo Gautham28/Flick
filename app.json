@@ -47,7 +47,8 @@
       "package": "com.anonymous.flick"
     },
     "plugins": [
-      "expo-media-library"
+      "expo-media-library",
+      "expo-font"
     ]
   }
 }
