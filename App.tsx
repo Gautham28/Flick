@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   Alert,
   Animated,
-  FlatList,
   Modal,
   PanResponder,
   Pressable,
@@ -17,21 +16,15 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as MediaLibrary from 'expo-media-library';
 import { StatusBar as ExpoStatusBar } from 'expo-status-bar';
+import AlbumPickerModal from './src/components/AlbumPickerModal';
+import HomeScreen from './src/screens/HomeScreen';
+import ReviewScreen from './src/screens/ReviewScreen';
+import { Mode, ReviewItem } from './src/types';
 import { useFonts } from 'expo-font';
 
 const SWIPE_THRESHOLD = 120;
 const SWIPE_OUT_DURATION = 200;
 const PAGE_SIZE = 40;
-
-type Mode = 'browse' | 'review';
-
-type ReviewItem = {
-  id: string;
-  uri: string;
-  width: number;
-  height: number;
-  creationTime: number;
-};
 
 export default function App() {
   const [permissionStatus, setPermissionStatus] = useState<MediaLibrary.PermissionStatus>('undetermined');
@@ -222,35 +215,6 @@ export default function App() {
     }
   };
 
-  const renderAlbumPicker = () => (
-    <Modal visible={albumModalVisible} transparent animationType="fade">
-      <View style={styles.modalBackdrop}>
-        <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Choose an Album</Text>
-          <FlatList
-            data={albums}
-            keyExtractor={(item) => item.id}
-            style={styles.albumList}
-            renderItem={({ item }) => (
-              <Pressable
-                onPress={() => {
-                  setSelectedAlbum(item);
-                  setAlbumModalVisible(false);
-                }}
-                style={styles.albumRow}
-              >
-                <Text style={styles.albumName}>{item.title}</Text>
-                <Text style={styles.albumCount}>{item.assetCount} photos</Text>
-              </Pressable>
-            )}
-          />
-          <TouchableOpacity onPress={() => setAlbumModalVisible(false)} style={styles.modalClose}>
-            <Text style={styles.modalCloseText}>Close</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
-  );
 
   if (!fontsLoaded) {
     return (
@@ -278,41 +242,46 @@ export default function App() {
 
   if (!selectedAlbum) {
     return (
-      <SafeAreaView style={styles.homeContainer}>
-        <ExpoStatusBar style="dark" />
-        <View style={styles.homeContent}>
-          <View style={styles.homeHeader}>
-            <Image source={require('./assets/flicklogo.png')} style={styles.homeLogo} resizeMode="contain" />
-          </View>
-          <Text style={styles.homeTitle}>Pick an album to start</Text>
-          <TouchableOpacity style={styles.homeButton} onPress={() => setAlbumModalVisible(true)}>
-            <Text style={styles.homeButtonText}>Choose Album</Text>
-          </TouchableOpacity>
-          <Image source={require('./assets/home-image.png')} style={styles.homeHero} resizeMode="contain" />
-        </View>
-        <Text style={styles.homeFooter}>CREATED BY GAUTHAM</Text>
-        {renderAlbumPicker()}
-      </SafeAreaView>
+      <>
+        <HomeScreen onChooseAlbum={() => setAlbumModalVisible(true)} />
+        <AlbumPickerModal
+          visible={albumModalVisible}
+          albums={albums}
+          onSelect={(album) => {
+            setSelectedAlbum(album);
+            setAlbumModalVisible(false);
+          }}
+          onClose={() => setAlbumModalVisible(false)}
+        />
+      </>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ExpoStatusBar style="light" />
-      <StatusBar barStyle="light-content" />
+    <SafeAreaView style={[styles.container, mode === 'browse' ? styles.containerLight : styles.containerDark]}>
+      <ExpoStatusBar style={mode === 'browse' ? 'dark' : 'light'} />
+      <StatusBar barStyle={mode === 'browse' ? 'dark-content' : 'light-content'} />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => setAlbumModalVisible(true)}>
           <Text style={styles.headerTitle}>{selectedAlbum.title}</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={mode === 'browse' ? openReview : openBrowse}>
-          <Text style={styles.headerAction}>
+        <TouchableOpacity
+          onPress={mode === 'browse' ? openReview : openBrowse}
+          style={mode === 'browse' ? styles.headerButton : styles.headerButtonAlt}
+        >
+          <Text style={styles.headerButtonText}>
             {mode === 'browse' ? `Review (${reviewItems.length})` : 'Back to Swipe'}
           </Text>
         </TouchableOpacity>
       </View>
 
       {mode === 'browse' ? (
-        <View style={styles.deckContainer}>
+        <>
+          <View style={styles.deckContainer}>
+          <View style={styles.tapHint}>
+            <Text style={styles.tapHintText}>Tap to view the full pic</Text>
+            <Image source={require('./assets/blackarrow.png')} style={styles.tapHintArrow} resizeMode="contain" />
+          </View>
           {nextAsset && (
             <View style={styles.card}>
               <Image source={{ uri: nextAsset.uri }} style={styles.image} resizeMode="cover" />
@@ -328,12 +297,6 @@ export default function App() {
                 },
               ]}
             >
-              <Animated.View style={[styles.badge, styles.keepBadge, { opacity: keepOpacity }]}> 
-                <Text style={styles.badgeText}>KEEP</Text>
-              </Animated.View>
-              <Animated.View style={[styles.badge, styles.deleteBadge, { opacity: deleteOpacity }]}> 
-                <Text style={styles.badgeText}>DELETE</Text>
-              </Animated.View>
               <Pressable style={styles.previewPressable} onPress={() => openPreview(currentAsset.uri)}>
                 <Image source={{ uri: currentAsset.uri }} style={styles.image} resizeMode="cover" />
               </Pressable>
@@ -349,55 +312,38 @@ export default function App() {
               ) : null}
             </View>
           )}
+          <View style={styles.swipeHintsRow}>
+            <View style={styles.swipeHintItem}>
+              <Image source={require('./assets/redarrow.png')} style={styles.swipeArrow} resizeMode="contain" />
+              <Text style={styles.swipeDeleteText}>Swipe to delete</Text>
+            </View>
+            <View style={styles.swipeHintItem}>
+              <Image source={require('./assets/greenarrow.png')} style={styles.swipeArrow} resizeMode="contain" />
+              <Text style={styles.swipeKeepText}>Swipe to keep</Text>
+            </View>
+          </View>
           {loadingAssets && (
             <View style={styles.loadingOverlay}>
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color="#111" />
             </View>
           )}
-        </View>
-      ) : (
-        <View style={styles.reviewContainer}>
-          <View style={styles.reviewToolbar}>
-            <TouchableOpacity style={styles.toolbarButton} onPress={selectAllReview}>
-              <Text style={styles.toolbarText}>Select All</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.toolbarButton} onPress={clearSelection}>
-              <Text style={styles.toolbarText}>Clear</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.toolbarButton} onPress={restoreSelected}>
-              <Text style={styles.toolbarText}>Restore</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.toolbarButton, styles.deleteButton]} onPress={deleteSelected}>
-              <Text style={[styles.toolbarText, styles.deleteText]}>Delete</Text>
-            </TouchableOpacity>
           </View>
-          {reviewItems.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyTitle}>No photos queued</Text>
-              <Text style={styles.emptyBody}>Swipe left to add photos here.</Text>
-            </View>
-          ) : (
-            <FlatList
-              data={reviewItems}
-              keyExtractor={(item) => item.id}
-              numColumns={3}
-              renderItem={({ item }) => {
-                const selected = reviewSelection.has(item.id);
-                return (
-                  <Pressable
-                    onPress={() => openPreview(item.uri)}
-                    onLongPress={() => toggleSelection(item.id)}
-                    delayLongPress={200}
-                    style={styles.reviewItem}
-                  >
-                    <Image source={{ uri: item.uri }} style={styles.reviewImage} />
-                    {selected ? <View style={styles.reviewSelected} /> : null}
-                  </Pressable>
-                );
-              }}
-            />
-          )}
-        </View>
+          <View style={styles.swipeFooter}>
+          <Image source={require('./assets/flicklogo.png')} style={styles.swipeFooterLogo} resizeMode="contain" />
+          <Text style={styles.swipeFooterText}>Flick</Text>
+          </View>
+        </>
+      ) : (
+        <ReviewScreen
+          items={reviewItems}
+          selection={reviewSelection}
+          onToggleSelection={toggleSelection}
+          onSelectAll={selectAllReview}
+          onClearSelection={clearSelection}
+          onRestoreSelected={restoreSelected}
+          onDeleteSelected={deleteSelected}
+          onPreview={openPreview}
+        />
       )}
 
       <Modal visible={!!previewUri} transparent animationType="fade" onRequestClose={closePreview}>
@@ -408,7 +354,15 @@ export default function App() {
         </Pressable>
       </Modal>
 
-      {renderAlbumPicker()}
+      <AlbumPickerModal
+        visible={albumModalVisible}
+        albums={albums}
+        onSelect={(album) => {
+          setSelectedAlbum(album);
+          setAlbumModalVisible(false);
+        }}
+        onClose={() => setAlbumModalVisible(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -416,6 +370,11 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  containerLight: {
+    backgroundColor: '#f7f5f0',
+  },
+  containerDark: {
     backgroundColor: '#101114',
   },
   centered: {
@@ -434,64 +393,67 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 20,
     paddingTop: 8,
-    paddingBottom: 12,
+    paddingBottom: 8,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
   headerTitle: {
-    color: '#fff',
+    color: '#111',
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: 'Chopsticks',
   },
-  headerAction: {
-    color: '#58a6ff',
-    fontSize: 16,
-    fontWeight: '600',
+  headerButton: {
+    backgroundColor: '#2e2f33',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 12,
+  },
+  headerButtonAlt: {
+    backgroundColor: '#2e2f33',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 12,
+  },
+  headerButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontFamily: 'Chopsticks',
   },
   deckContainer: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingBottom: 20,
+    paddingBottom: 12,
+  },
+  tapHint: {
+    position: 'absolute',
+    top: 0,
+    alignItems: 'center',
+  },
+  tapHintText: {
+    fontFamily: 'Chopsticks',
+    fontSize: 14,
+    color: '#111',
+    marginBottom: 6,
+  },
+  tapHintArrow: {
+    width: 44,
+    height: 44,
   },
   card: {
     position: 'absolute',
-    width: '86%',
-    height: '70%',
-    borderRadius: 24,
+    width: '88%',
+    height: '62%',
+    borderRadius: 26,
     overflow: 'hidden',
-    backgroundColor: '#20222a',
-    shadowColor: '#000',
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
+    backgroundColor: '#c9c9c9',
+    borderWidth: 2,
+    borderColor: '#2e2f33',
   },
   image: {
     width: '100%',
     height: '100%',
-  },
-  badge: {
-    position: 'absolute',
-    top: 24,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-    borderWidth: 2,
-    zIndex: 2,
-  },
-  keepBadge: {
-    left: 20,
-    borderColor: '#7CFFB2',
-  },
-  deleteBadge: {
-    right: 20,
-    borderColor: '#FF7C7C',
-  },
-  badgeText: {
-    color: '#fff',
-    fontWeight: '700',
-    letterSpacing: 1,
   },
   emptyState: {
     alignItems: 'center',
@@ -539,158 +501,50 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Chopsticks',
   },
-  homeContainer: {
-    flex: 1,
-    backgroundColor: '#f7f5f0',
-    paddingHorizontal: 24,
-    alignItems: 'center',
-  },
-  homeContent: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    paddingTop: 80,
-    paddingBottom: 80,
-  },
-  homeHeader: {
+  swipeHintsRow: {
     position: 'absolute',
-    top: 8,
-    left: 0,
-    right: 0,
+    bottom: 6,
+    left: 20,
+    right: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
-  homeLogo: {
-    width: 82,
-    height: 82,
+  swipeHintItem: {
+    alignItems: 'center',
   },
-  homeBrand: {
-    fontFamily: 'Chopsticks',
-    fontSize: 28,
-    color: '#111',
+  swipeArrow: {
+    width: 70,
+    height: 24,
+    marginBottom: 4,
   },
-  homeTitle: {
-    fontFamily: 'Chopsticks',
-    fontSize: 30,
-    color: '#111',
-    marginBottom: 22,
-  },
-  homeButton: {
-    backgroundColor: '#2e2f33',
-    paddingHorizontal: 34,
-    paddingVertical: 16,
-    borderRadius: 16,
-    marginBottom: 30,
-  },
-  homeButtonText: {
-    color: '#fff',
-    fontFamily: 'Chopsticks',
-    fontSize: 24,
-  },
-  homeHero: {
-    width: '82%',
-    height: 220,
-    marginTop: 16,
-  },
-  homeFooter: {
+  swipeDeleteText: {
     fontFamily: 'Chopsticks',
     fontSize: 12,
-    color: '#111',
-    letterSpacing: 1.2,
-    textAlign: 'center',
+    color: '#cc3b3b',
+  },
+  swipeKeepText: {
+    fontFamily: 'Chopsticks',
+    fontSize: 12,
+    color: '#2c9b4b',
+  },
+  swipeFooter: {
+    alignItems: 'center',
     paddingBottom: 18,
+  },
+  swipeFooterLogo: {
+    width: 30,
+    height: 30,
+  },
+  swipeFooterText: {
+    fontFamily: 'Chopsticks',
+    fontSize: 18,
+    color: '#111',
+    marginTop: 4,
   },
   loadingOverlay: {
     position: 'absolute',
     bottom: 20,
-  },
-  reviewContainer: {
-    flex: 1,
-    paddingHorizontal: 12,
-  },
-  reviewToolbar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-  },
-  toolbarButton: {
-    paddingHorizontal: 8,
-    paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: '#20222a',
-  },
-  toolbarText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  deleteButton: {
-    backgroundColor: '#3a1c1c',
-  },
-  deleteText: {
-    color: '#ff8a8a',
-  },
-  reviewItem: {
-    width: '33.33%',
-    aspectRatio: 1,
-    padding: 4,
-  },
-  reviewImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 8,
-  },
-  reviewSelected: {
-    position: 'absolute',
-    inset: 4,
-    borderRadius: 8,
-    borderWidth: 3,
-    borderColor: '#58a6ff',
-    backgroundColor: 'rgba(88,166,255,0.2)',
-  },
-  modalBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  modalContent: {
-    backgroundColor: '#1a1c22',
-    borderRadius: 16,
-    padding: 16,
-    maxHeight: '70%',
-  },
-  modalTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 12,
-  },
-  albumList: {
-    marginBottom: 12,
-  },
-  albumRow: {
-    paddingVertical: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#2a2d36',
-  },
-  albumName: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  albumCount: {
-    color: '#8a8f9c',
-    marginTop: 2,
-  },
-  modalClose: {
-    alignSelf: 'flex-end',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-  },
-  modalCloseText: {
-    color: '#58a6ff',
-    fontWeight: '700',
   },
   previewBackdrop: {
     flex: 1,
