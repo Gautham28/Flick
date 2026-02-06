@@ -26,6 +26,8 @@ export default function ReviewScreen({
   onPreview,
   onBack,
 }: ReviewScreenProps) {
+  const allSelected = items.length > 0 && selection.size === items.length;
+
   return (
     <View style={styles.reviewContainer}>
       <View style={styles.header}>
@@ -36,8 +38,13 @@ export default function ReviewScreen({
       </View>
 
       <View style={styles.reviewToolbar}>
-        <TouchableOpacity style={styles.toolbarButton} onPress={onSelectAll}>
-          <Text style={styles.toolbarText}>Select All</Text>
+        <TouchableOpacity
+          style={[styles.toolbarButton, allSelected ? styles.toolbarButtonActive : null]}
+          onPress={onSelectAll}
+        >
+          <Text style={[styles.toolbarText, allSelected ? styles.toolbarTextActive : null]}>
+            Select All
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.toolbarButton} onPress={onClearSelection}>
           <Text style={styles.toolbarText}>Clear</Text>
@@ -172,8 +179,8 @@ const styles = StyleSheet.create({
     inset: 6,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: '#2e2f33',
-    backgroundColor: 'rgba(46,47,51,0.15)',
+    borderColor: '#1e6fff',
+    backgroundColor: 'rgba(30,111,255,0.28)',
   },
   emptyState: {
     alignItems: 'center',
