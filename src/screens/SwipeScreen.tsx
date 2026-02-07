@@ -35,8 +35,9 @@ export default function SwipeScreen({
   return (
     <>
       <View style={styles.header}>
-        <TouchableOpacity onPress={onOpenAlbumPicker}>
+        <TouchableOpacity onPress={onOpenAlbumPicker} style={styles.headerTitleWrap}>
           <Text style={styles.headerTitle}>{selectedAlbum.title}</Text>
+          <Text style={styles.headerTitleArrow}>▾</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.headerButton} onPress={onToggleMode}>
           <Text style={styles.headerButtonText}>
@@ -109,10 +110,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  headerTitleWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   headerTitle: {
     color: '#111',
     fontSize: 18,
     fontFamily: 'Chopsticks',
+  },
+  headerTitleArrow: {
+    marginLeft: 6,
+    fontSize: 16,
+    color: '#111',
   },
   headerButton: {
     backgroundColor: '#2e2f33',

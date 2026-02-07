@@ -26,8 +26,6 @@ export default function ReviewScreen({
   onPreview,
   onBack,
 }: ReviewScreenProps) {
-  const allSelected = items.length > 0 && selection.size === items.length;
-
   return (
     <View style={styles.reviewContainer}>
       <View style={styles.header}>
@@ -38,13 +36,8 @@ export default function ReviewScreen({
       </View>
 
       <View style={styles.reviewToolbar}>
-        <TouchableOpacity
-          style={[styles.toolbarButton, allSelected ? styles.toolbarButtonActive : null]}
-          onPress={onSelectAll}
-        >
-          <Text style={[styles.toolbarText, allSelected ? styles.toolbarTextActive : null]}>
-            Select All
-          </Text>
+        <TouchableOpacity style={styles.toolbarButton} onPress={onSelectAll}>
+          <Text style={styles.toolbarText}>Select All</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.toolbarButton} onPress={onClearSelection}>
           <Text style={styles.toolbarText}>Clear</Text>
@@ -72,7 +65,13 @@ export default function ReviewScreen({
             const selected = selection.has(item.id);
             return (
               <Pressable
-                onPress={() => onPreview(item.uri)}
+                onPress={() => {
+                  if (selected) {
+                    onToggleSelection(item.id);
+                  } else {
+                    onPreview(item.uri);
+                  }
+                }}
                 onLongPress={() => onToggleSelection(item.id)}
                 delayLongPress={200}
                 style={styles.reviewItem}
@@ -129,9 +128,9 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   toolbarButton: {
-    paddingHorizontal: 14,
-    height: 40,
-    borderRadius: 16,
+    paddingHorizontal: 22,
+    height: 46,
+    borderRadius: 23,
     borderWidth: 1,
     borderColor: '#2e2f33',
     backgroundColor: '#f7f5f0',
@@ -140,7 +139,7 @@ const styles = StyleSheet.create({
   },
   toolbarText: {
     color: '#2e2f33',
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: 'Chopsticks',
   },
   deleteButton: {
