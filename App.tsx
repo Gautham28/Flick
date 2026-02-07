@@ -46,6 +46,10 @@ export default function App() {
     Chopsticks: require('./assets/fonts/Chopsticks.ttf'),
   });
   const [previewUri, setPreviewUri] = useState<string | null>(null);
+  const [lastSwipe, setLastSwipe] = useState<{
+    asset: MediaLibrary.Asset;
+    direction: 'keep' | 'delete';
+  } | null>(null);
 
   useEffect(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
@@ -163,6 +167,9 @@ export default function App() {
 
   const onSwipeComplete = (direction: 'keep' | 'delete') => {
     const asset = assets[currentIndex];
+    if (asset) {
+      setLastSwipe({ asset, direction });
+    }
     if (direction === 'delete' && asset) {
       setReviewItems((prev) => [
         {
@@ -184,6 +191,20 @@ export default function App() {
 
   const openReview = () => setMode('review');
   const openBrowse = () => setMode('browse');
+
+  const undoLastSwipe = () => {
+    if (!lastSwipe) return;
+    setCurrentIndex((prev) => (prev > 0 ? prev - 1 : 0));
+    if (lastSwipe.direction === 'delete') {
+      setReviewItems((prev) => prev.filter((item) => item.id != lastSwipe.asset.id));
+      setReviewSelection((prev) => {
+        const next = new Set(prev);
+        next.delete(lastSwipe.asset.id);
+        return next;
+      });
+    }
+    setLastSwipe(null);
+  };
 
   const openPreview = (uri?: string) => {
     if (uri) setPreviewUri(uri);
@@ -293,6 +314,7 @@ export default function App() {
           loadingAssets={loadingAssets}
           hasNextPage={hasNextPage}
           onLoadMore={loadMoreAssets}
+          onUndo={undoLastSwipe}
         />
       ) : (
         <ReviewScreen

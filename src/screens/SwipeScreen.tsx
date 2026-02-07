@@ -15,6 +15,7 @@ export type SwipeScreenProps = {
   loadingAssets: boolean;
   hasNextPage: boolean;
   onLoadMore: () => void;
+  onUndo: () => void;
 };
 
 export default function SwipeScreen({
@@ -31,6 +32,7 @@ export default function SwipeScreen({
   loadingAssets,
   hasNextPage,
   onLoadMore,
+  onUndo,
 }: SwipeScreenProps) {
   return (
     <>
@@ -94,9 +96,14 @@ export default function SwipeScreen({
         )}
       </View>
 
-      <View style={styles.swipeFooter}>
-        <Image source={require('../../assets/flicklogo.png')} style={styles.swipeFooterLogo} resizeMode="contain" />
+      <View style={styles.undoHint}>
+        <Text style={styles.undoHintText}>Tap here to undo
+The last swipe</Text>
+        <Image source={require('../../assets/blackarrow2.png')} style={styles.undoHintArrow} resizeMode="contain" />
       </View>
+      <TouchableOpacity style={styles.swipeFooter} onPress={onUndo} activeOpacity={0.7}>
+        <Image source={require('../../assets/flicklogo.png')} style={styles.swipeFooterLogo} resizeMode="contain" />
+      </TouchableOpacity>
     </>
   );
 }
@@ -152,7 +159,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Chopsticks',
     fontSize: 14,
     color: '#111',
-    marginBottom: 6,
+    marginBottom: 2,
   },
   tapHintArrow: {
     width: 44,
@@ -209,6 +216,24 @@ const styles = StyleSheet.create({
   swipeFooterLogo: {
     width: 82,
     height: 82,
+  },
+  undoHint: {
+    alignItems: 'center',
+    marginBottom: 0,
+    marginTop: 1,
+  },
+  undoHintText: {
+    fontFamily: 'Chopsticks',
+    fontSize: 13,
+    color: '#111',
+    textAlign: 'center',
+    marginBottom: 2,
+  },
+  undoHintArrow: {
+    width: 42,
+    height:42,
+    transform: [{ rotate: '0deg' }],
+    paddingBottom: 10,
   },
   emptyState: {
     alignItems: 'center',
