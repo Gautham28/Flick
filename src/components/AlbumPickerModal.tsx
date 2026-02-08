@@ -13,7 +13,7 @@ export default function AlbumPickerModal({ visible, albums, onSelect, onClose }:
     <Modal visible={visible} transparent animationType="fade">
       <View style={styles.modalBackdrop}>
         <View style={styles.modalContent}>
-          <Text style={styles.modalTitle}>Choose an Album</Text>
+          <Text style={styles.modalTitle}>CHOOSE AN ALBUM</Text>
           <FlatList
             data={albums}
             keyExtractor={(item) => item.id}
@@ -37,46 +37,53 @@ export default function AlbumPickerModal({ visible, albums, onSelect, onClose }:
 const styles = StyleSheet.create({
   modalBackdrop: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: 'rgba(0,0,0,0.35)',
     justifyContent: 'center',
-    padding: 24,
+    padding: 20,
   },
   modalContent: {
-    backgroundColor: '#1a1c22',
-    borderRadius: 16,
-    padding: 16,
-    maxHeight: '70%',
+    backgroundColor: '#fff',
+    borderRadius: 22,
+    padding: 18,
+    maxHeight: '78%',
+    borderWidth: 2,
+    borderColor: '#2e2f33',
   },
   modalTitle: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 12,
+    color: '#111',
+    fontSize: 24,
+    fontFamily: 'Chopsticks',
+    marginBottom: 16,
   },
   albumList: {
-    marginBottom: 12,
+    marginBottom: 16,
   },
   albumRow: {
-    paddingVertical: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#2a2d36',
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    borderRadius: 18,
+    borderWidth: 2,
+    borderColor: '#2e2f33',
+    marginBottom: 12,
   },
   albumName: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+    color: '#111',
+    fontSize: 20,
+    fontFamily: 'Chopsticks',
+    marginBottom: 6,
   },
   albumCount: {
-    color: '#8a8f9c',
-    marginTop: 2,
+    color: '#111',
+    fontSize: 14,
   },
   modalClose: {
     alignSelf: 'flex-end',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 6,
   },
   modalCloseText: {
-    color: '#58a6ff',
-    fontWeight: '700',
+    color: '#e53935',
+    fontFamily: 'Chopsticks',
+    fontSize: 22,
   },
 });
